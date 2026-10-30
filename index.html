@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Кликабельный прототип пилота «Кредит для бизнеса» в приложении Эвотор">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+</style>
+<title>Кредит для бизнеса в Эвоторе</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: шапка с переключателем сценариев · слева список шагов · по центру телефон · справа пояснение к шагу */
+:root{
+  --bg:#ECEEF2; --panel:#FFFFFF; --fg:#16171B; --muted:#5D626D; --line:#D8DBE2;
+  --accent:#F26511; --accent-ink:#FFFFFF; --accent-soft:#FDE9DC; --bezel:#0D0E10;
+  --font:"Golos Text",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111215; --panel:#1A1C20; --fg:#ECEEF2; --muted:#9BA1AC; --line:#2B2E34;
+  --accent:#FF7A2E; --accent-ink:#1A0C03; --accent-soft:#3A2214; --bezel:#000000; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111215; --panel:#1A1C20; --fg:#ECEEF2; --muted:#9BA1AC; --line:#2B2E34;
+  --accent:#FF7A2E; --accent-ink:#1A0C03; --accent-soft:#3A2214; --bezel:#000000; color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.45}
+.shell{min-height:100%;display:flex;flex-direction:column;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding-block:16px 12px;border-bottom:1px solid var(--line)}
+header.top h1{font-size:18px;font-weight:700;margin:0;text-wrap:balance}
+header.top .sub{color:var(--muted);font-size:13px}
+.seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+.seg button{font:inherit;font-size:14px;font-weight:500;border:0;background:transparent;color:var(--fg);padding:8px 14px;border-radius:9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.seg button:focus-visible,.navb:focus-visible,.steps button:focus-visible,.hintbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.spacer{flex:1}
+.hintbtn{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:8px 12px;border-radius:10px;cursor:pointer}
+.hintbtn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+
+main.stage{flex:1;display:grid;grid-template-columns:minmax(200px,260px) auto minmax(220px,320px);gap:28px;justify-content:center;align-items:start;padding-block:20px 28px}
+.steps{min-width:0}
+.steps h2,.notes .eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 10px}
+.steps ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.steps button{width:100%;display:flex;gap:10px;align-items:baseline;text-align:left;font:inherit;font-size:14px;border:0;background:transparent;color:var(--fg);padding:7px 10px;border-radius:9px;cursor:pointer}
+.steps button .n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px;min-width:26px}
+.steps button:hover{background:var(--panel)}
+.steps button[aria-current="step"]{background:var(--accent-soft);font-weight:600}
+.steps button[aria-current="step"] .n{color:var(--accent)}
+.steps .phase{font-size:11px;color:var(--muted);margin:12px 10px 4px;letter-spacing:.04em}
+
+.devwrap{position:relative}
+.device{width:414px;height:868px;transform-origin:top left;background:var(--bezel);border-radius:56px;padding:12px;box-shadow:0 30px 60px -30px rgba(0,0,0,.45)}
+.notes{min-width:0;display:flex;flex-direction:column;gap:12px}
+.notes .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.notes h3{font-size:20px;margin:0 0 8px;text-wrap:balance;line-height:1.25}
+.notes p{margin:0;color:var(--muted)}
+.notes .who{display:inline-block;font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--accent-soft);color:var(--fg);margin-bottom:10px}
+.navrow{display:flex;gap:8px}
+.navb{flex:1;font:inherit;font-size:14px;font-weight:600;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
+.navb.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.navb:disabled{opacity:.4;cursor:default}
+.tip{font-size:13px;color:var(--muted)}
+kbd{font-family:inherit;font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--panel)}
+
+@media (max-width:1060px){main.stage{grid-template-columns:auto minmax(220px,320px)}.steps{display:none}}
+@media (max-width:720px){main.stage{grid-template-columns:1fr;justify-items:center}.notes{width:100%;max-width:440px}}
+
+/* ---------- Телефон: фиксированный облик приложения Эвотор ---------- */
+.ph{--a-bg:#F2F3F5;--a-sf:#FFFFFF;--a-tx:#1C1C1E;--a-tx2:#6E6E76;--a-tx3:#A1A1A8;--a-bd:#E2E3E8;
+  --a-ac:#FF6A13;--a-acs:#FFF0E6;--a-ok:#1FA968;--a-oks:#E6F6EE;--a-wr:#E8920C;--a-wrs:#FFF5E1;--a-er:#E5484D;--a-ers:#FDECEC;
+  --a-in:#2F6BFF;--a-ins:#EAF1FF;--a-dk:#18181A;--a-dks:#2C2B2E;--a-w:#FFFFFF;
+  width:390px;height:844px;border-radius:44px;overflow:hidden;position:relative;background:var(--a-bg);color:var(--a-tx);
+  display:flex;flex-direction:column;font-family:var(--font);font-size:15px;line-height:1.35}
+.ph *{box-sizing:border-box}
+.ph.dark{background:var(--a-dk);color:var(--a-w)}
+.ph.lock{background:linear-gradient(170deg,#2B2F45,#15171F);color:var(--a-w)}
+.ph.call{background:#16161A;color:var(--a-w)}
+.ph.white{background:var(--a-sf)}
+.sb{height:54px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:6px 32px 0 48px;font-weight:600;font-size:16px}
+.sb svg{height:13px;width:auto}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.pad{padding:12px 16px 20px;display:flex;flex-direction:column;gap:14px}
+.foot{flex:none;padding:10px 16px 6px;display:flex;flex-direction:column;gap:8px}
+.home{flex:none;height:30px;display:flex;justify-content:center;align-items:center}
+.home i{width:134px;height:5px;border-radius:3px;background:currentColor;opacity:.9}
+.ph.dark .home,.ph.lock .home,.ph.call .home{color:var(--a-w)}
+.nb{flex:none;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 6px}
+.nb b{font-size:17px;font-weight:600}
+.ib{width:44px;height:44px;display:grid;place-items:center;border:0;background:none;color:inherit;cursor:pointer;padding:0}
+.ib svg{width:24px;height:24px}
+.wb{flex:none;display:flex;align-items:center;gap:8px;padding:4px 6px 8px 16px;background:var(--a-sf);border-bottom:1px solid var(--a-bd)}
+.wb .t{flex:1;min-width:0}
+.wb .t b{display:block;font-size:15px;font-weight:600}
+.wb .t span{font-size:12px;color:var(--a-tx2);display:flex;gap:4px;align-items:center}
+.wb .t span svg{width:11px;height:11px}
+.h1{font-size:28px;font-weight:700;line-height:1.15;margin:0}
+.h2{font-size:22px;font-weight:700;margin:6px 0 0}
+.lead{color:var(--a-tx2);margin:0}
+.small{font-size:13px;color:var(--a-tx2)}
+.tiny{font-size:12px;color:var(--a-tx3);text-align:center}
+.btn{width:100%;height:52px;border-radius:14px;border:0;font:inherit;font-size:17px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn.p{background:var(--a-ac);color:var(--a-w)}
+.btn.s{background:var(--a-acs);color:var(--a-ac)}
+.btn.g{background:var(--a-sf);color:var(--a-tx)}
+.btn.t{background:transparent;color:var(--a-tx)}
+.btn.d{background:var(--a-bd);color:var(--a-tx3);cursor:default}
+.fld{display:flex;flex-direction:column;gap:6px}
+.fld label{font-size:13px;font-weight:500;color:var(--a-tx2)}
+.fld .box{height:52px;border-radius:12px;background:var(--a-sf);border:1px solid var(--a-bd);display:flex;align-items:center;padding:0 16px;font-size:17px}
+.fld .box.big{font-size:22px;font-weight:600}
+.fld .hl{font-size:12px;color:var(--a-tx2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--a-bd);background:var(--a-sf);color:var(--a-tx);border-radius:18px;padding:8px 14px;font:inherit;font-size:15px;cursor:pointer}
+.chip.on{border:1.5px solid var(--a-ac);background:var(--a-acs);color:var(--a-ac);font-weight:600}
+.card{background:var(--a-sf);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.ph.dark .card{background:var(--a-dks)}
+.row{display:flex;align-items:center;gap:12px}
+.row.top{align-items:flex-start}
+.grow{flex:1;min-width:0}
+.bdg{flex:none;width:40px;height:40px;border-radius:14px;display:grid;place-items:center}
+.bdg svg{width:22px;height:22px}
+.bdg.sm{width:32px;height:32px;border-radius:10px}.bdg.sm svg{width:18px;height:18px}
+.bdg.lg{width:72px;height:72px;border-radius:24px}.bdg.lg svg{width:38px;height:38px}
+.c-ac{background:var(--a-acs);color:var(--a-ac)} .c-ok{background:var(--a-oks);color:var(--a-ok)} .c-wr{background:var(--a-wrs);color:var(--a-wr)}
+.c-in{background:var(--a-ins);color:var(--a-in)} .c-er{background:var(--a-ers);color:var(--a-er)} .c-n{background:var(--a-bg);color:var(--a-tx)}
+.c-okf{background:var(--a-ok);color:var(--a-w)}
+.pill{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.t1{font-weight:600;font-size:16px}
+.t2{font-size:13px;color:var(--a-tx2)}
+.list>*+*{border-top:1px solid var(--a-bd)}
+.list{padding:0;gap:0}
+.list .li{padding:13px 16px}
+.chev{width:20px;height:20px;color:var(--a-tx3);flex:none}
+.opt{cursor:pointer;border:1.5px solid transparent}
+.opt.rec{border-color:var(--a-ac)}
+.todo{outline:1.5px dashed currentColor;outline-offset:3px;border-radius:4px;position:relative}
+.todo::after{content:"текст в работе";position:absolute;right:0;top:-18px;font-size:10px;font-weight:600;letter-spacing:.04em;opacity:.8}
+.sheetbg{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:5}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--a-sf);border-radius:24px 24px 0 0;padding:10px 20px 34px;z-index:6;display:flex;flex-direction:column;gap:14px;align-items:center;color:var(--a-tx)}
+.grab{width:36px;height:5px;border-radius:3px;background:var(--a-bd)}
+.otp{display:flex;gap:8px}
+.otp span{width:52px;height:60px;border-radius:12px;background:var(--a-bg);display:grid;place-items:center;font-size:24px;font-weight:600;cursor:pointer}
+.otp span.cur{border:2px solid var(--a-ac)}
+.push{position:absolute;left:12px;right:12px;top:48px;z-index:7;background:rgba(246,246,248,.97);color:var(--a-tx);border-radius:22px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;box-shadow:0 12px 30px -12px rgba(0,0,0,.5)}
+.push .lg{flex:none;width:38px;height:38px;border-radius:9px;background:var(--a-ac);color:var(--a-w);display:grid;place-items:center;font-weight:700;font-size:18px}
+.tab{display:flex;justify-content:space-between;align-items:center;background:var(--a-dks);border-radius:32px;padding:8px 10px}
+.tab div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--a-w);padding:0 4px}
+.tab svg{width:22px;height:22px;color:var(--a-tx3)}
+.tab .on,.tab .on svg{color:#4CD38E}
+.metric{flex:1;background:var(--a-dks);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.metric b{font-size:22px;font-weight:600}
+.banner{background:var(--a-ac);color:var(--a-w);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px;cursor:pointer}
+.banner .cta{align-self:flex-start;background:var(--a-w);color:var(--a-ac);font-weight:600;border-radius:12px;padding:12px 20px}
+.mitem{display:flex;align-items:center;gap:22px;padding:10px 4px;font-size:20px}
+.mitem svg{width:28px;height:28px}
+.hr{height:1.5px;background:rgba(255,255,255,.25);margin:6px 0}
+.carousel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 16px 4px;scrollbar-width:none}
+.carousel::-webkit-scrollbar{display:none}
+.ex{flex:none;width:282px;scroll-snap-align:start;background:var(--a-sf);border-radius:20px;overflow:hidden;display:flex;flex-direction:column}
+.ex .hd{height:96px;padding:16px;display:flex;justify-content:space-between;align-items:center}
+.ex .hd .ic{width:56px;height:56px;border-radius:18px;background:var(--a-w);display:grid;place-items:center}
+.ex .hd .ic svg{width:30px;height:30px}
+.ex .bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.dots{display:flex;gap:6px;justify-content:center}
+.dots i{width:6px;height:6px;border-radius:3px;background:var(--a-bd)}
+.dots i.on{width:18px;background:var(--a-ac)}
+details{border-top:1px solid var(--a-bd)}
+details:first-child{border-top:0}
+summary{list-style:none;padding:14px 16px;display:flex;justify-content:space-between;gap:12px;font-weight:500;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+details p{margin:0;padding:0 16px 14px;color:var(--a-tx2);font-size:14px}
+details[open] summary svg{transform:rotate(180deg)}
+.msg{align-self:flex-start;max-width:290px;background:var(--a-bg);border-radius:18px;padding:10px 14px;font-size:15px}
+.tog{width:51px;height:31px;border-radius:16px;background:var(--a-bd);position:relative;flex:none;cursor:pointer;border:0;padding:0}
+.tog::after{content:"";position:absolute;width:27px;height:27px;border-radius:50%;background:var(--a-w);top:2px;left:2px;transition:left .2s}
+.tog.on{background:var(--a-ok)}.tog.on::after{left:22px}
+.kv{display:flex;flex-direction:column;gap:2px}
+.kv span{font-size:12px;color:var(--a-tx2)}
+.offer .pp{display:flex;gap:8px}
+.offer .pp div{flex:1;background:var(--a-bg);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column}
+.offer .pp span{font-size:12px;color:var(--a-tx2)}
+.offer .pp b{font-size:15px}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--a-ins);color:var(--a-in);display:grid;place-items:center;font-weight:700;flex:none}
+.icsv{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ph [data-go],.ph [data-act]{cursor:pointer}
+body.hint .ph [data-go]{animation:hint 1.4s ease-in-out infinite}
+@keyframes hint{0%,100%{box-shadow:0 0 0 0 rgba(255,106,19,0)}50%{box-shadow:0 0 0 4px rgba(255,106,19,.55)}}
+@media (prefers-reduced-motion:reduce){body.hint .ph [data-go]{animation:none;outline:2px solid #FF6A13;outline-offset:2px}.tog::after{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <header class="top">
+    <div>
+      <h1>Кредит для бизнеса в приложении Эвотор</h1>
+      <div class="sub">Кликабельный прототип двух сценариев пилота</div>
+    </div>
+    <div class="seg" role="group" aria-label="Сценарий">
+      <button type="button" id="segA" data-scen="a">A · Быстрый пилот</button>
+      <button type="button" id="segB" data-scen="b">B · Нативное приложение</button>
+    </div>
+    <div class="spacer"></div>
+    <button type="button" class="hintbtn" id="hintBtn" aria-pressed="false">Показать, куда нажимать</button>
+  </header>
+
+  <main class="stage">
+    <nav class="steps" aria-label="Шаги сценария">
+      <h2 id="stepsTitle">Шаги</h2>
+      <ol id="stepList"></ol>
+    </nav>
+    <div class="devwrap" id="devwrap">
+      <div class="device" id="device"><div class="ph" id="ph"></div></div>
+    </div>
+    <aside class="notes">
+      <div class="card">
+        <div class="eyebrow" id="stepNo">Шаг</div>
+        <span class="who" id="stepWho"></span>
+        <h3 id="stepTitle"></h3>
+        <p id="stepNote"></p>
+      </div>
+      <div class="navrow">
+        <button type="button" class="navb" id="prevBtn">← Назад</button>
+        <button type="button" class="navb primary" id="nextBtn">Дальше →</button>
+      </div>
+      <p class="tip">Нажимайте на кнопки внутри телефона или листайте стрелками <kbd>←</kbd> <kbd>→</kbd>. Цифры, банки и условия на экранах условные.</p>
+    </aside>
+  </main>
+</div>
+
+<script>
+(function(){
+const ic=(d,extra)=>`<svg class="icsv" viewBox="0 0 24 24" aria-hidden="true"${extra||''}>${d}</svg>`;
+const I={
+ back:ic('<path d="M15 5l-7 7 7 7"/>'), x:ic('<path d="M6 6l12 12M18 6L6 18"/>'),
+ chev:ic('<path d="M9 5l7 7-7 7"/>'), down:ic('<path d="M6 9l6 6 6-6"/>'),
+ check:ic('<path d="M5 12.5l4.2 4.2L19 7"/>'), lock:ic('<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>'),
+ doc:ic('<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>'),
+ bank:ic('<path d="M3 9l9-5 9 5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>'),
+ building:ic('<path d="M4 20V6l8-3v17M12 9h8v11M7 8h2M7 12h2M7 16h2M15 13h2M15 16h2M3 20h18"/>'),
+ chart:ic('<path d="M4 20h16M7 16v-4M12 16V7M17 16v-6"/>'),
+ shield:ic('<path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z"/><path d="M9 12l2 2 4-4"/>'),
+ camera:ic('<path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>'),
+ keyboard:ic('<rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/>'),
+ link:ic('<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'),
+ upload:ic('<path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M5 15v4h14v-4"/>'),
+ plus:ic('<path d="M12 5v14M5 12h14"/>'), info:ic('<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/>'),
+ snow:ic('<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.5 4.5L12 7l2.5-2.5M9.5 19.5L12 17l2.5 2.5"/>'),
+ store:ic('<path d="M4 9l1.5-5h13L20 9M4 9h16M4 9v11h16V9M9 20v-6h6v6"/>'),
+ fridge:ic('<rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M6 9h12M9 5.5v1.5M9 12v2.5"/>'),
+ wallet:ic('<rect x="3.5" y="6" width="17" height="13" rx="2.5"/><path d="M3.5 10h17M16 14.5h.01"/>'),
+ box:ic('<path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5zM3.5 7.5L12 12l8.5-4.5M12 12v9"/>'),
+ arrow:ic('<path d="M5 12h13M13 6l6 6-6 6"/>'),
+ phone:ic('<path d="M6 3.5h3l1.5 4-2 1.5a11 11 0 0 0 6.5 6.5l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4 5.5a2 2 0 0 1 2-2z"/>'),
+ coin:ic('<circle cx="12" cy="12" r="8.5"/><path d="M10 7.5h3a2.3 2.3 0 0 1 0 4.6h-3V7.5zM10 12.1h3.5M8.8 15h5.4M10 7.5v9.5"/>'),
+ grid:ic('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'),
+ feed:ic('<circle cx="12" cy="12" r="8.5"/><path d="M8 12a4 4 0 0 1 4 4M8 8a8 8 0 0 1 8 8"/>'),
+ apps:ic('<path d="M4 9l1.5-5h13L20 9v10H4zM4 9h16"/>'),
+ chat:ic('<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>'),
+ menu:ic('<path d="M4 7h16M4 12h16M4 17h16"/>'),
+ brief:ic('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8.5 7V5h7v2"/>'),
+ term:ic('<rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M9 7h6M9 12h2M13 12h2M9 15h2M13 15h2"/>'),
+ edo:ic('<path d="M9 13l5-6 3.5 3-5 6M3.5 16h17v4.5h-17z"/>'),
+ puzzle:ic('<path d="M5 8h4V6a2 2 0 1 1 4 0v2h4v4h-2a2 2 0 1 0 0 4h2v4H5v-4h2a2 2 0 1 0 0-4H5z"/>'),
+ bell:ic('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5h4"/>'),
+ out:ic('<path d="M14 4H5v16h9M10 12h10M16.5 8.5L20 12l-3.5 3.5"/>'),
+ msg:ic('<path d="M4 5h16v11H9l-5 4z"/>')
+};
+const statusIcons=`<svg viewBox="0 0 78 14" fill="none" aria-hidden="true"><rect x="0" y="9" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="6" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="3" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="13" rx="1" fill="currentColor"/><path d="M31 3.5a9 9 0 0 1 12 0M33.2 6.4a5.6 5.6 0 0 1 7.6 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M37 10.8l2-2.2a2.6 2.6 0 0 0-4 0z" fill="currentColor"/><rect x="51.5" y="1" width="22" height="12" rx="3.5" stroke="currentColor" stroke-opacity=".4"/><rect x="53.5" y="3" width="15" height="8" rx="2" fill="currentColor"/></svg>`;
+const sb=()=>`<div class="sb"><span>9:41</span>${statusIcons}</div>`;
+const home='<div class="home"><i></i></div>';
+const nav=(close)=>`<div class="nb"><button class="ib" data-back aria-label="Назад">${I.back}</button><b>Кредит для бизнеса</b><button class="ib" data-go="${close}" aria-label="Закрыть">${I.x}</button></div>`;
+const web=(close,title,domain)=>`<div class="wb"><div class="t"><b>${title||'Кредит для бизнеса'}</b><span>${I.lock}${domain||'evotor.ru'}</span></div><button class="ib" data-go="${close}" aria-label="Закрыть">${I.x}</button></div>`;
+const btn=(label,go,k)=>`<button class="btn ${k||'p'}"${go?` data-go="${go}"`:''}>${label}</button>`;
+const fld=(label,value,helper,big)=>`<div class="fld"><label>${label}</label><div class="box${big?' big':''}">${value}</div>${helper?`<div class="hl">${helper}</div>`:''}</div>`;
+const pill=(t,c)=>`<span class="pill ${c}">${t}</span>`;
+const bdg=(icon,c,s)=>`<span class="bdg ${s||''} ${c}">${icon}</span>`;
+
+let amount='1 500 000 ₽';
+const amounts={'500 тыс':'500 000 ₽','1 млн':'1 000 000 ₽','1,5 млн':'1 500 000 ₽','3 млн':'3 000 000 ₽','5 млн':'5 000 000 ₽'};
+const amountBlock=(list)=>`<div class="fld"><label>Сумма кредита</label><div class="box big" id="amtBox">${amount}</div></div>
+ <div class="chips">${list.map(k=>`<button class="chip${amounts[k]===amount?' on':''}" data-amt="${k}">${k}</button>`).join('')}</div>`;
+
+function dashHome(go,opts){opts=opts||{};
+ return `${sb()}<div class="scroll"><div class="pad" style="gap:12px;padding-top:20px">
+ <div class="h1" style="font-size:40px">Сегодня</div>
+ ${opts.status||''}
+ <div class="row"><div class="metric"><span style="font-weight:600;font-size:17px">Выручка</span><b>${opts.rev||'48 320 ₽'}</b></div><div class="metric"><span style="font-weight:600;font-size:17px">Прибыль</span><b>${opts.prof||'12 140 ₽'}</b></div></div>
+ <div class="card row" style="flex-direction:row">${bdg(I.check,'c-okf')}<div class="grow"><div class="t1">Мониторинг бизнеса</div><div style="color:var(--a-tx3)">У вас всё в порядке</div></div></div>
+ ${go?`<div class="banner" data-go="${go}"><div class="row" style="justify-content:space-between;align-items:flex-start"><b style="font-size:24px">Кредит для бизнеса</b><span style="width:22px;height:22px">${I.x}</span></div><div>Узнайте доступные условия — одна заявка в несколько банков</div><span class="cta">Узнать условия</span></div>`:''}
+ </div></div>
+ <div class="foot" style="padding-bottom:28px">${tabbar(0)}</div>${opts.push||''}`;}
+function tabbar(active){const t=[[I.grid,'Сводка'],[I.feed,'Лента'],[I.apps,'Приложения'],[I.chat,'Поддержка'],[I.menu,'Меню']];
+ return `<div class="tab">${t.map((x,i)=>`<div class="${i===active?'on':''}">${x[0]}<span>${x[1]}</span></div>`).join('')}</div>`;}
+function menuScreen(item,push){
+ return `${sb()}<div class="scroll"><div class="pad" style="gap:0;padding-top:24px">
+ <div class="h1" style="font-size:40px">Меню</div>
+ <div style="height:22px"></div><div style="font-size:24px;font-weight:700">+7 (916) 123-45-67</div><div>ivanov@mail.ru</div><div style="height:16px"></div>
+ ${item}
+ <div style="height:6px"></div>
+ <div class="mitem">${I.brief}Интеграции</div><div class="hr"></div>
+ ${[[I.term,'Терминалы'],[I.box,'Товары'],[I.edo,'Документы (ЭДО)'],[I.puzzle,'Мои приложения'],[I.bell,'Уведомления']].map(x=>`<div class="mitem">${x[0]}${x[1]}</div>`).join('')}
+ <div class="hr"></div><div class="mitem">${I.out}Выйти</div>
+ </div></div>
+ <div class="foot" style="padding-bottom:28px;align-items:center"><span style="color:var(--a-tx2)">Версия приложения 1.17.0</span><div style="width:100%">${tabbar(4)}</div></div>${push||''}`;}
+const creditItem=(go,status,sub,cls)=>`<div class="card" data-go="${go}" style="flex-direction:row;align-items:center;gap:14px;background:var(--a-dks)"><span style="width:28px;height:28px;color:var(--a-ac)">${I.coin}</span><div class="grow" style="display:flex;flex-direction:column;gap:5px"><div style="font-size:18px;font-weight:500">Кредит для бизнеса</div><div>${pill(status,cls)}</div><div style="font-size:13px;color:var(--a-tx3)">${sub}</div></div><span class="chev">${I.chev}</span></div>`;
+const pushEl=(go,title,text)=>`<div class="push" data-go="${go}"><div class="lg">Э</div><div class="grow"><div class="row" style="justify-content:space-between"><b style="font-size:13px">${title}</b><span style="font-size:12px;color:var(--a-tx2)">сейчас</span></div><div style="font-size:14px">${text}</div></div></div>`;
+
+function landing(close,cta,sheet){
+ const ex=[[I.snow,'c-wr','Закупка к сезону','Кофейня взяла деньги в октябре и закупила зерно, стаканы и сиропы к новогоднему спросу — по оптовой цене и с запасом.','≈ 600 тыс ₽ · 6 мес','Продажи в декабре без пустых полок'],
+ [I.store,'c-ac','Открыть новую точку','Магазин у дома открыл второй зал в соседнем районе: ремонт, витрины и первая закупка товара.','≈ 2,5 млн ₽ · 24 мес','Вторая точка окупает платёж через 4–6 мес'],
+ [I.fridge,'c-in','Обновить оборудование','Пекарня заменила старую печь и холодильную витрину — меньше брака и больше ассортимента.','≈ 900 тыс ₽ · 18 мес','Новые позиции в меню уже через месяц'],
+ [I.wallet,'c-ok','Закрыть кассовый разрыв','Поставщик просит предоплату, а покупатели платят позже. Деньги на зарплату и аренду, пока выручка в пути.','≈ 400 тыс ₽ · 6 мес','Бизнес работает без пауз'],
+ [I.box,'c-n','Расширить ассортимент','Цветочный магазин добавил подарки и упаковку — средний чек вырос за счёт допродаж.','≈ 350 тыс ₽ · 12 мес','Выше средний чек']];
+ const faq=[['Кто может подать заявку?','Руководитель ООО или индивидуальный предприниматель, который работает на кассах Эвотор.'],
+ ['Повлияет ли заявка на кредитную историю?','Банки запрашивают кредитную историю только после вашего согласия при подписании заявки. Каждый такой запрос фиксируется в бюро кредитных историй.'],
+ ['Какие банки рассматривают заявку?','Банки-партнёры с лицензией ЦБ РФ. Менеджер подберёт те, что подходят под ваш бизнес.'],
+ ['Сколько ждать ответа?','Обычно 1–3 рабочих дня после того, как собран полный пакет документов.']];
+ return `${sb()}${sheet?`<div style="height:6px;display:flex;justify-content:center;background:var(--a-sf)"><span class="grab"></span></div>`:''}${web(close)}
+ <div class="scroll"><div class="pad" style="gap:28px;padding:16px 0 24px">
+  <div style="padding:0 16px"><div class="card" style="background:var(--a-ac);color:var(--a-w);border-radius:24px;padding:20px">
+   <span class="pill" style="background:var(--a-w);color:var(--a-ac);align-self:flex-start">Деньги на развитие бизнеса</span>
+   <div class="h1 todo" style="color:var(--a-w)">Оффер сюда</div>
+   <div style="font-size:15px">Дадим ответ от нескольких банков. Оставьте телефон и сумму, остальное подскажет менеджер.</div>
+   <div class="row" style="gap:8px">${[['до N млн ₽','сумма'],['от N%','ставка'],['до N мес','срок']].map(k=>`<div style="flex:1;background:var(--a-w);color:var(--a-tx);border-radius:12px;padding:10px"><b>${k[0]}</b><div style="font-size:12px;color:var(--a-tx2)">${k[1]}</div></div>`).join('')}</div>
+   <button class="btn g" data-go="${cta}" style="color:var(--a-ac)">Оставить заявку</button>
+  </div></div>
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:14px"><div class="h2">Заявку рассматривают банки-партнёры</div>
+   <div class="row" style="gap:10px">${['c-in','c-ok','c-wr'].map(c=>`<div class="card" style="flex:1;align-items:center;gap:6px;padding:14px 8px;border:1px solid var(--a-bd)">${bdg(I.bank,c)}<span style="font-size:12px;color:var(--a-tx2)">Логотип банка</span></div>`).join('')}</div>
+   <div class="row" style="gap:8px;align-items:flex-start"><span style="width:18px;height:18px;color:var(--a-ok);flex:none">${I.check}</span><span class="small">Банки с лицензией ЦБ РФ. Решение и условия определяет банк.</span></div></div>
+  <div style="display:flex;flex-direction:column;gap:14px"><div style="padding:0 16px"><div class="h2">Как использовать кредит</div><p class="lead" style="margin-top:6px">Примеры, на что предприниматели берут деньги и что это даёт бизнесу</p></div>
+   <div class="carousel" id="car">${ex.map(e=>`<div class="ex"><div class="hd ${e[1]}"><span class="ic" style="color:inherit">${e[0]}</span>${pill('Пример','c-n')}</div><div class="bd"><b style="font-size:18px">${e[2]}</b><span class="small" style="font-size:14px">${e[3]}</span><span class="pill c-n" style="align-self:flex-start;font-size:13px">${e[4]}</span><span class="row" style="gap:6px;color:var(--a-ok);font-size:13px;font-weight:500"><span style="width:16px;height:16px;flex:none">${I.arrow}</span>${e[5]}</span></div></div>`).join('')}</div>
+   <div class="dots" id="dots">${ex.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>
+   <div class="tiny" style="padding:0 16px;text-align:left">Суммы и сроки в примерах — ориентир. Точные условия банк сообщит после рассмотрения заявки.</div></div>
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:14px"><div class="h2">Почему через Эвотор</div>
+   <div class="card" style="gap:16px">
+    <div class="row top">${bdg(I.bank,'c-ac')}<div class="grow"><div class="t1">Одна заявка — несколько банков</div><div class="t2" style="font-size:14px">Не нужно обходить банки по очереди</div></div></div>
+    <div class="row top">${bdg(I.chart,'c-ac')}<div class="grow"><div class="t1">Льготные условия для клиентов Эвотор</div><div class="t2 todo" style="font-size:14px;margin-top:6px">Что-то убедительное написать тут</div></div></div>
+    <div class="row top">${bdg(I.bell,'c-ac')}<div class="grow"><div class="t1">Поможем с оформлением</div><div class="t2" style="font-size:14px">Менеджер подскажет, как правильно заполнить документы</div></div></div>
+   </div></div>
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:14px"><div class="h2">Как это работает</div>
+   <div class="card" style="gap:14px">${[['Оставляете заявку',''],['Менеджер перезванивает','Уточняет цель и помогает собрать документы'],['Банки рассматривают','Обычно 1–3 рабочих дня после полного пакета'],['Выбираете предложение','Сравниваете условия и получаете деньги']].map((s,i)=>`<div class="row top"><span style="flex:none;width:28px;height:28px;border-radius:14px;background:var(--a-tx);color:var(--a-w);display:grid;place-items:center;font-weight:700;font-size:14px">${i+1}</span><div class="grow"><div style="font-weight:600">${s[0]}</div>${s[1]?`<div class="t2">${s[1]}</div>`:''}</div></div>`).join('')}</div></div>
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:14px"><div class="h2">Что понадобится для решения</div>
+   <div class="card" style="gap:10px">${['ИНН','Телефон руководителя','Паспорт руководителя','Сумма и срок','Выписки по всем р/с за 12 мес (TXT из 1С)','Подписание заявки кодом из SMS'].map(s=>`<div class="row" style="gap:10px"><span style="width:18px;height:18px;color:var(--a-ok);flex:none">${I.check}</span>${s}</div>`).join('')}</div></div>
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:14px"><div class="h2">Частые вопросы</div>
+   <div class="card" style="padding:0;gap:0">${faq.map(f=>`<details><summary>${f[0]}<span class="chev">${I.down}</span></summary><p>${f[1]}</p></details>`).join('')}</div></div>
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px">${btn('Оставить заявку',cta)}<div class="tiny">Решение о кредите и условия определяет банк.</div></div>
+ </div></div>${home}`;}
+
+const S={
+ a1:{t:'Баннер на «Сводке»',who:'Приложение',cls:'dark',note:'Вход — существующий баннерный слот на главном экране. Баннер закрывается крестиком и ротируется с другими продуктами. Партнёр на баннере не упоминается.',h:()=>dashHome('a2')},
+ a2:{t:'Короткая заявка в WebView',who:'WebView',note:'Три поля: имя, телефон из профиля Эвотора и сумма. ИНН и остальные данные уточнит менеджер по телефону.',h:()=>`${sb()}${web('a1')}<div class="scroll"><div class="pad">
+  <div class="h1">Кредит для бизнеса</div><p class="lead">Укажите сумму, менеджер перезвонит, подберёт банки и подскажет, какие документы нужны.</p>
+  ${fld('Имя','Иван')}${fld('Телефон','+7 916 123-45-67','Подставили из профиля Эвотор — проверьте')}${amountBlock(['500 тыс','1 млн','1,5 млн','3 млн'])}
+ </div></div><div class="foot"><div class="tiny">Нажимая «Отправить заявку», вы соглашаетесь на обработку персональных данных</div>${btn('Отправить заявку','a4')}${btn('Узнать подробнее','a3','g')}</div>${home}`},
+ a3:{t:'Подробнее о кредите',who:'WebView',note:'Ниже формы — лендинг: банки-партнёры, примеры использования кредита, полный список данных для решения и ответы на частые вопросы. Пунктиром отмечены тексты, которые ещё в работе.',h:()=>landing('a1','a2')},
+ a4:{t:'Заявка отправлена',who:'WebView',note:'Сразу говорим, кто позвонит и что подготовить заранее: паспорт и выписки по всем счетам за 12 месяцев.',h:()=>`${sb()}${web('a1')}<div class="scroll"><div class="pad" style="align-items:center;text-align:center;padding-top:32px">
+  ${bdg(I.check,'c-okf','lg')}<div class="h1" style="font-size:26px">Заявка отправлена</div><p class="lead">Менеджер позвонит на +7 916 123-45-67 в течение рабочего дня. Номер звонящего — в SMS.</p>
+  <div class="card" style="text-align:left;width:100%"><div class="t1">Подготовьте заранее</div>
+   <div class="row top">${bdg(I.doc,'c-ac','sm')}<div class="grow"><div style="font-weight:500">Паспорт руководителя</div><div class="t2">фото разворота с фото и прописки</div></div></div>
+   <div class="row top">${bdg(I.bank,'c-ac','sm')}<div class="grow"><div style="font-weight:500">Выписки по всем расчётным счетам</div><div class="t2">за 12 месяцев, TXT из 1С — можно попросить бухгалтера</div></div></div></div>
+ </div></div><div class="foot">${btn('Вернуться в Эвотор','a5')}</div>${home}`},
+ a5:{t:'SMS с подтверждением',who:'Вне приложения',cls:'lock',note:'Дальше клиент общается вне приложения. В SMS — номер менеджера и ссылка, по которой можно заранее загрузить документы.',h:()=>`${sb()}<div class="scroll"><div class="pad" style="align-items:center;padding-top:30px;gap:6px">
+  <div style="font-size:17px;font-weight:500">пятница, 30 октября</div><div style="font-size:84px;font-weight:600;line-height:1">14:32</div><div style="height:40px"></div>
+  <div data-go="a6" style="width:100%;background:rgba(255,255,255,.92);color:var(--a-tx);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:4px">
+   <div class="row" style="justify-content:space-between"><span class="row" style="gap:6px"><span style="width:20px;height:20px;border-radius:6px;background:var(--a-ok);color:var(--a-w);display:grid;place-items:center"><span style="width:13px;height:13px">${I.msg}</span></span><span class="t2" style="font-weight:500">Сообщения</span></span><span class="t2" style="font-size:12px">сейчас</span></div>
+   <b>Кредит для бизнеса</b><div style="font-size:14px">Заявка на ${amount} принята. Менеджер позвонит сегодня с номера +7 495 000-00-00. Документы можно загрузить заранее: ссылка</div></div>
+ </div></div>${home}`},
+ a6:{t:'Звонок менеджера',who:'Вне приложения',cls:'call',note:'Менеджер подтверждает, что говорит с руководителем, уточняет ИНН, цель и срок, объясняет пакет документов и присылает ссылку на загрузку.',h:()=>`${sb()}<div class="scroll"><div class="pad" style="align-items:center;text-align:center;padding-top:80px;gap:8px">
+  <div style="font-size:30px;font-weight:500">+7 495 000-00-00</div><div style="color:var(--a-tx3)">Кредит для бизнеса · менеджер</div></div></div>
+  <div class="foot" style="flex-direction:row;justify-content:space-between;padding:0 56px 60px">
+   <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><button class="ib" data-go="a5" aria-label="Отклонить" style="width:76px;height:76px;border-radius:38px;background:var(--a-er);color:var(--a-w)"><span style="width:30px;height:30px;transform:rotate(135deg)">${I.phone}</span></button>Отклонить</div>
+   <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><button class="ib" data-go="a7" aria-label="Ответить" style="width:76px;height:76px;border-radius:38px;background:var(--a-ok);color:var(--a-w)"><span style="width:30px;height:30px">${I.phone}</span></button>Ответить</div></div>${home}`},
+ a7:{t:'Загрузка документов по ссылке',who:'Страница партнёра',note:'По ссылке из SMS клиент загружает паспорт сам, а выписки может переслать бухгалтеру — той же ссылкой.',h:()=>`${sb()}${web('a8','Документы для заявки','страница партнёра')}<div class="scroll"><div class="pad">
+  <div class="h1" style="font-size:26px">Документы для заявки</div><p class="lead">Заявка на ${amount} · ООО «Ромашка»</p>
+  <div class="card" style="background:var(--a-ins);gap:6px;font-size:14px"><div>• Паспорт — фото разворота с фото и прописки</div><div>• Выписки по всем р/с за 12 мес, TXT из 1С — не PDF</div></div>
+  <div class="card" style="flex-direction:row;align-items:center">${bdg(I.doc,'c-ok')}<div class="grow"><div class="t1">Паспорт руководителя</div><div style="font-size:13px;color:var(--a-ok)">2 фото загружены</div></div></div>
+  <div class="card"><div class="row">${bdg(I.bank,'c-wr')}<div class="grow"><div class="t1">Выписки по расчётным счетам</div><div id="stState" style="font-size:13px;color:var(--a-wr)">Не загружены</div></div></div>
+   <div class="row" style="gap:8px"><button class="btn s" data-act="upload" style="flex:1">Загрузить</button><button class="btn t" data-act="buh" style="flex:1">Бухгалтеру</button></div></div>
+  <div class="small">Ссылку можно переслать бухгалтеру — он загрузит выписки сам.</div>
+ </div></div><div class="foot">${btn('Отправить менеджеру','a8')}</div>${home}`},
+ a8:{t:'Напоминания и ответ банков',who:'Вне приложения',cls:'white',note:'Напоминаем о недостающих документах и сообщаем, что банки ответили. Условия менеджер обсуждает с клиентом по телефону. Статуса заявки в приложении в этом сценарии нет.',h:()=>`${sb()}<div class="scroll"><div class="pad" style="gap:10px;padding-top:8px">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding-bottom:8px"><span class="bdg c-n" style="border-radius:24px;width:48px;height:48px">${I.bank}</span><span style="font-size:13px;font-weight:500">Кредит для бизнеса</span></div>
+  ${[['30 окт, 14:31',`Заявка на ${amount} принята. Менеджер позвонит сегодня с номера +7 495 000-00-00. Документы: ссылка`],['31 окт, 10:00','Осталось загрузить выписки по счетам за 12 мес (TXT). Можно переслать ссылку бухгалтеру: ссылка'],['4 нояб, 16:20','Банки ответили по заявке: 3 предложения, до 3 000 000 ₽. Менеджер позвонит, чтобы обсудить условия.']].map(m=>`<div class="tiny">${m[0]}</div><div class="msg">${m[1]}</div>`).join('')}
+ </div></div>${home}`},
+
+ b1:{t:'Баннер на «Сводке»',who:'Приложение',cls:'dark',note:'Вход тот же, что в сценарии A: баннерный слот на главном экране. Дальше всё происходит внутри приложения.',h:()=>dashHome('b2')},
+ b2:{t:'Нативная форма',who:'Приложение',note:'Форма в приложении: имя, компания из аккаунта Эвотора (её можно сменить, если компаний несколько), телефон и сумма. Заявка сразу создаёт сделку в CRM Эвотора.',h:()=>`${sb()}${nav('b1')}<div class="scroll"><div class="pad">
+  <div class="h1">Заявка на кредит</div><p class="lead">Укажите сумму, менеджер перезвонит, подберёт банки и подскажет, какие документы нужны.</p>
+  ${fld('Имя','Иван')}
+  <div class="fld"><label>Компания</label><div class="box" data-act="co-open" style="justify-content:space-between;cursor:pointer"><span><span id="coName">${company[0]}</span> <span style="font-size:13px;color:var(--a-tx2)">· ИНН <span id="coInn">${company[1]}</span></span></span><span style="font-size:14px;color:var(--a-ac);font-weight:500">Сменить</span></div><div class="hl">Из вашего аккаунта Эвотор — проверьте</div></div>
+  ${fld('Телефон для связи','+7 916 123-45-67')}${amountBlock(['500 тыс','1 млн','1,5 млн','3 млн','5 млн'])}
+ </div></div><div class="foot"><div class="tiny">Нажимая «Отправить заявку», вы соглашаетесь на обработку персональных данных</div>${btn('Отправить заявку','b4')}${btn('Узнать подробнее','b3','g')}</div>${home}<div id="coSheet" hidden></div>`},
+ b3:{t:'«Узнать подробнее» шторкой',who:'WebView в приложении',note:'Лендинг открывается шторкой поверх формы. Закрытие или «Оставить заявку» возвращают в форму, введённые данные не теряются.',h:()=>landing('b2','b2',true)},
+ b4:{t:'Заявка отправлена',who:'Приложение',note:'Подтверждение и подсказка, что подготовить к звонку.',h:()=>`${sb()}${nav('b5')}<div class="scroll"><div class="pad" style="align-items:center;text-align:center;padding-top:32px">
+  ${bdg(I.check,'c-okf','lg')}<div class="h1" style="font-size:26px">Заявка отправлена</div><p class="lead">Менеджер позвонит на +7 916 123-45-67</p>
+  <div class="card" style="text-align:left;width:100%"><div class="t1">Чтобы банки ответили быстрее, подготовьте</div>
+   <div class="row top">${bdg(I.doc,'c-ac','sm')}<div class="grow"><div style="font-weight:500">Паспорт руководителя</div><div class="t2">понадобится скан паспорта</div></div></div>
+   <div class="row top">${bdg(I.bank,'c-ac','sm')}<div class="grow"><div style="font-weight:500">Выписки по всем расчётным счетам</div><div class="t2">за 12 месяцев, TXT из 1С можно попросить бухгалтера</div></div></div></div>
+ </div></div><div class="foot">${btn('Готово','b5')}</div>${home}`},
+ b5:{t:'Статус в «Меню»',who:'Приложение',cls:'dark',note:'Заявка всегда видна в «Меню». Менеджер партнёра работает в CRM Эвотора, и статус в приложении меняется вместе со сделкой.',h:()=>menuScreen(creditItem('b6','Ждёт звонка',`Заявка на ${amount} · менеджер позвонит сегодня`,'c-wr'))},
+ b6:{t:'Push: нужны документы',who:'Приложение',cls:'dark',note:'После звонка менеджер меняет статус сделки в CRM. Клиенту приходит push, и он дозаполняет заявку прямо в приложении.',h:()=>menuScreen(creditItem('b7','Нужны документы','Загрузите паспорт и выписки — осталось 3 шага','c-ac" style="background:var(--a-ac);color:var(--a-w)'),pushEl('b7','Эвотор · Кредит для бизнеса','Менеджер уточнил заявку. Загрузите паспорт и выписки — это займёт пару минут.'))},
+ b7:{t:'Паспорт',who:'Приложение',note:'Три способа передать паспорт: через Госуслуги, фото с распознаванием или вручную.',h:()=>`${sb()}${nav('b6')}<div class="scroll"><div class="pad">
+  <div class="h1" style="font-size:26px">Паспорт руководителя</div><p class="lead">Банки обязаны проверить личность заявителя. Выберите удобный способ.</p>
+  ${[[I.shield,'Через Госуслуги','≈ 30 секунд, данные уже подтверждены',1],[I.camera,'Сфотографировать паспорт','Распознаем и заполним поля сами',0],[I.keyboard,'Ввести вручную','≈ 3 минуты',0]].map(o=>`<div class="card opt${o[3]?' rec':''}" data-go="b8" style="flex-direction:row;align-items:center">${bdg(o[0],o[3]?'c-ac':'c-n')}<div class="grow">${o[3]?pill('Рекомендуем','c-ac'):''}<div class="t1">${o[1]}</div><div class="t2">${o[2]}</div></div><span class="chev">${I.chev}</span></div>`).join('')}
+  <div class="row top" style="gap:8px"><span style="width:18px;height:18px;flex:none;color:var(--a-tx2)">${I.lock}</span><span class="small">Данные передаются в зашифрованном виде и только в выбранные банки.</span></div>
+ </div></div>${home}`},
+ b8:{t:'Проверка паспорта',who:'Приложение',note:'Данные пришли из Госуслуг. Клиент только проверяет их и при ошибке исправляет поле.',h:()=>`${sb()}${nav('b6')}<div class="scroll"><div class="pad">
+  <div class="h1" style="font-size:26px">Проверьте данные</div>
+  <div class="card" style="flex-direction:row;align-items:center;background:var(--a-oks);padding:12px"><span style="width:20px;height:20px;color:var(--a-ok)">${I.shield}</span><span style="font-weight:500">Получено из Госуслуг</span></div>
+  <div class="card list">${[['ФИО','Иванов Иван Иванович'],['Дата рождения','14.05.1984'],['Серия и номер','45 12 345678'],['Дата выдачи','21.06.2019'],['Код подразделения','770-093'],['Кем выдан','ГУ МВД России по г. Москве'],['Адрес регистрации','г. Москва, ул. Летняя, д. 5, кв. 12']].map(k=>`<div class="li kv"><span>${k[0]}</span><b style="font-weight:500">${k[1]}</b></div>`).join('')}</div>
+  <div class="small">Нашли ошибку? Нажмите на поле, чтобы исправить.</div>
+ </div></div><div class="foot">${btn('Всё верно','b9')}</div>${home}`},
+ b9:{t:'Выписки',who:'Приложение',note:'Требования к выпискам показываем до загрузки. Выписки можно попросить у бухгалтера: ссылка откроется у него в веб-кабинете.',h:()=>`${sb()}${nav('b6')}<div class="scroll"><div class="pad">
+  <div class="h1" style="font-size:26px">Выписки по расчётным счетам</div><p class="lead">По ним банки оценивают обороты. Нужны выписки по всем счетам, куда приходит выручка.</p>
+  <div class="card" style="background:var(--a-ins);gap:8px;padding:14px">${['Формат TXT из 1С или XML — не PDF и не скриншот','Период — последние 12 месяцев','Все расчётные счета компании'].map(s=>`<div class="row top" style="gap:8px"><span style="width:18px;height:18px;flex:none;color:var(--a-in)">${I.check}</span><span style="font-size:14px">${s}</span></div>`).join('')}</div>
+  ${[[I.link,'Попросить бухгалтера','Отправим ссылку — выгрузит из 1С или банка','Рекомендуем'],[I.upload,'Загрузить с телефона','Из «Файлов», почты или мессенджера',''],[I.bank,'Подключить банк','Выписка подтянется сама','Гипотеза']].map((o,i)=>`<div class="card opt${i===0?' rec':''}" data-go="b10" style="flex-direction:row;align-items:center">${bdg(o[0],i===0?'c-ac':'c-n')}<div class="grow">${o[3]?pill(o[3],i===0?'c-ac':'c-n'):''}<div class="t1">${o[1]}</div><div class="t2">${o[2]}</div></div><span class="chev">${I.chev}</span></div>`).join('')}
+ </div></div><div class="foot">${btn('Далее','','d')}</div>${home}`},
+ b10:{t:'Автопроверка выписок',who:'Приложение',note:'Формат, период и ИНН владельца счёта проверяются сразу при загрузке. Выручку касс Эвотора можно добавить как дополнительный сигнал для банков.',h:()=>`${sb()}${nav('b6')}<div class="scroll"><div class="pad">
+  <div class="h1" style="font-size:26px">Выписки по расчётным счетам</div>
+  ${[['Банк 1 · р/с •• 4521','01.10.2025 – 30.09.2026 · TXT · загрузили вы'],['Банк 2 · р/с •• 0187','01.10.2025 – 30.09.2026 · TXT · загрузил бухгалтер']].map(s=>`<div class="card" style="flex-direction:row;align-items:center;padding:14px">${bdg(I.doc,'c-ok')}<div class="grow"><div style="font-weight:600">${s[0]}</div><div style="font-size:12px;color:var(--a-tx2)">${s[1]}</div></div>${pill('Проверено','c-ok')}</div>`).join('')}
+  <div class="card" style="flex-direction:row;align-items:center;padding:14px;background:transparent;border:1.5px dashed var(--a-bd)">${bdg(I.plus,'c-ac','sm')}<span style="color:var(--a-ac);font-weight:500">Добавить выписку по другому счёту</span></div>
+  <div class="card" style="flex-direction:row;align-items:center">${bdg(I.chart,'c-ok')}<div class="grow"><div style="font-weight:600">Добавить выручку касс Эвотор</div><div style="font-size:12px;color:var(--a-tx2)">18,4 млн ₽ за 12 мес · дополнительно к выпискам</div></div><button class="tog on" data-act="tog" aria-label="Передать выручку касс"></button></div>
+  <div class="small">Проверили автоматически: формат, период 12 мес, ИНН владельца счёта совпадает с компанией.</div>
+ </div></div><div class="foot">${btn('Далее','b11')}</div>${home}`},
+ b11:{t:'Проверка заявки',who:'Приложение',note:'Сводка всего пакета перед подписанием. С любого пункта можно вернуться и исправить.',h:()=>review(false)},
+ b12:{t:'Подписание кодом из SMS',who:'Приложение',note:'Одним кодом подписываются заявка и согласия: на обработку персональных данных, запрос кредитной истории и передачу данных банкам. Нажмите на поле кода.',h:()=>review(true)},
+ b13:{t:'Заявка в банках',who:'Приложение',note:'Статус по каждому банку. Если банку нужен ещё один документ, клиент увидит это здесь и в push.',h:()=>`${sb()}${nav('b14')}<div class="scroll"><div class="pad" style="align-items:center;text-align:center;padding-top:24px">
+  ${bdg(I.check,'c-okf','lg')}<div class="h1" style="font-size:24px">Заявка отправлена в банки</div><p class="lead">Сообщим, как только появится решение</p>
+  <div class="card list" style="width:100%;text-align:left">${[['А','Банк А','Рассматривает','c-in'],['Б','Банк Б','Рассматривает','c-in'],['В','Банк В','Нужна выписка','c-wr'],['Г','Банк Г','Получил заявку','c-n']].map(b=>`<div class="li row"><span class="logo">${b[0]}</span><div class="grow"><div style="font-weight:500">${b[1]}</div>${pill(b[2],b[3])}</div><span class="chev">${I.chev}</span></div>`).join('')}</div>
+ </div></div><div class="foot">${btn('Готово','b14')}</div>${home}`},
+ b14:{t:'Банки ответили',who:'Приложение',cls:'dark',note:'Push и карточка на «Сводке» сообщают, что есть предложения. Нажмите на уведомление или на карточку.',h:()=>dashHome('',{rev:'52 980 ₽',prof:'13 400 ₽',status:`<div class="card" data-go="b15" style="gap:10px;border-radius:20px"><div class="row" style="justify-content:space-between"><span style="font-size:13px;color:var(--a-tx3)">Заявка на кредит</span>${pill('Есть ответ','c-ok')}</div><b style="font-size:22px">3 банка одобрили</b><div class="row" style="gap:6px">${['var(--a-ok)','var(--a-ok)','var(--a-ok)','var(--a-er)'].map(c=>`<i style="flex:1;height:6px;border-radius:3px;background:${c}"></i>`).join('')}</div><span style="align-self:flex-start;background:var(--a-ac);color:var(--a-w);font-weight:600;border-radius:12px;padding:12px 18px">Смотреть предложения</span></div>`,push:pushEl('b15','Эвотор','Банки ответили на заявку. 3 банка готовы выдать кредит до 3 млн ₽.')})},
+ b15:{t:'Предложения банков',who:'Приложение',note:'Предложения в одном формате: сумма, ставка, срок и платёж. Отказы показаны внизу с причиной. Все цифры условные.',h:()=>`${sb()}${nav('b14')}<div class="scroll"><div class="pad">
+  <div class="h1" style="font-size:26px">3 банка готовы выдать кредит</div><p class="lead">По заявке на ${amount} · 12 мес</p>
+  <div class="chips">${['Меньше платёж','Больше сумма','Быстрее'].map((c,i)=>`<button class="chip${i?'':' on'}" data-sort>${c}</button>`).join('')}</div>
+  ${[['А','Банк А','Одобрено · деньги за 1 день','до 3 000 000 ₽','23,9%','до 24 мес','≈ 142 000 ₽'],['Б','Банк Б','Одобрено','до 2 000 000 ₽','25,5%','до 18 мес','≈ 143 600 ₽'],['В','Банк В','Одобрено при выписке','до 1 500 000 ₽','27%','12 мес','≈ 144 300 ₽']].map(o=>`<div class="card offer"><div class="row"><span class="logo" style="width:44px;height:44px;border-radius:12px">${o[0]}</span><div class="grow"><div class="t1">${o[1]}</div><div style="font-size:13px;color:var(--a-ok);font-weight:500">${o[2]}</div></div></div><b style="font-size:24px">${o[3]}</b><div class="pp"><div><span>Ставка</span><b>${o[4]}</b></div><div><span>Срок</span><b>${o[5]}</b></div><div><span>Платёж</span><b>${o[6]}</b></div></div><button class="btn p" data-act="pick">Выбрать</button></div>`).join('')}
+  <div class="card" style="flex-direction:row;align-items:center"><span class="logo">Г</span><div class="grow"><div style="font-weight:500">Банк Г</div><div style="font-size:13px;color:var(--a-er)">Отказ: не подходит по отрасли</div></div></div>
+  <div class="tiny">Ставки и платёж — пример для прототипа. Итоговые условия банк подтвердит при оформлении.</div>
+ </div></div>${home}`}
+};
+let company=['ООО «Ромашка»','7701234567'];
+const companies=[['ООО «Ромашка»','7701234567'],['ИП Иванов Иван Иванович','772012345678']];
+function review(sign){
+ const rows=[['Компания',`${company[0]} · ИНН ${company[1]}`],['Кредит',`${amount} · 12 мес · пополнить оборот`],['Заявитель','Иванов И. И. · +7 916 123-45-67'],['Паспорт','Подтверждён через Госуслуги'],['Выручка касс (дополнительно)','18,4 млн ₽ за 12 мес · Эвотор'],['Выписки','2 счёта · Банк 1 и Банк 2 · TXT за 12 мес']];
+ return `${sb()}${nav('b6')}<div class="scroll"><div class="pad">
+  <div class="h1" style="font-size:26px">Всё готово к отправке</div>
+  <div class="card list">${rows.map(r=>`<div class="li row">${bdg(I.check,'c-ok','sm')}<div class="grow kv"><span>${r[0]}</span><b style="font-weight:500;font-size:14px">${r[1]}</b></div></div>`).join('')}</div>
+  <div class="card" style="padding:14px">Отправим в банки-партнёры, которые подходят под ваш профиль</div>
+  <div class="card" style="flex-direction:row;background:var(--a-ins);padding:12px">${'<span style="width:18px;height:18px;flex:none;color:var(--a-in)">'+I.info+'</span>'}<span style="font-size:13px">Каждый банк запросит кредитную историю — это отразится в бюро кредитных историй. Менеджер банка может позвонить для уточнений.</span></div>
+ </div></div><div class="foot">${btn('Подписать и отправить','b12')}</div>${home}
+ ${sign?`<div class="sheetbg"></div><div class="sheet"><span class="grab"></span><b style="font-size:22px">Подпишите заявку</b><span style="color:var(--a-tx2)">Код отправили на +7 916 ***-45-67</span>
+  <div class="otp" data-go="b13">${['4','8','1','',''].map((d,i)=>`<span class="${i===3?'cur':''}">${d}</span>`).join('')}</div>
+  <span class="tiny">Отправить код повторно через 0:45</span>
+  <div class="card" style="background:var(--a-bg);width:100%;gap:12px;padding:14px">${['Заявка-анкета на кредит','Согласие на обработку персональных данных','Согласие на запрос кредитной истории в БКИ','Согласие на передачу данных банкам-партнёрам'].map(t=>`<div class="row top" style="gap:10px"><span style="flex:none;width:24px;height:24px;border-radius:7px;background:var(--a-ac);color:var(--a-w);display:grid;place-items:center"><span style="width:16px;height:16px">${I.check}</span></span><div class="grow"><div style="font-size:14px">${t}</div><span style="font-size:13px;color:var(--a-ac);font-weight:500">Читать документ</span></div></div>`).join('')}</div>
+  <span class="tiny">Вводя код, вы подписываете документы простой электронной подписью.</span></div>`:''}`;}
+
+const ORDER={a:['a1','a2','a3','a4','a5','a6','a7','a8'],b:['b1','b2','b3','b4','b5','b6','b7','b8','b9','b10','b11','b12','b13','b14','b15']};
+const PHASES={a:{a1:'В приложении',a5:'Вне приложения'},b:{b1:'Заявка',b5:'Статус и дозаполнение',b13:'Ответ банков'}};
+let cur='a1',hist=[];
+const ph=document.getElementById('ph');
+
+function go(id,push){if(!S[id])return;if(push!==false&&cur&&cur!==id)hist.push(cur);cur=id;
+ try{if(location.hash.slice(1)!==id)history.replaceState(null,'','#'+id);}catch(e){}
+ render();}
+function render(){const s=S[cur];const sc=cur[0];
+ ph.className='ph '+(s.cls||'');ph.innerHTML=s.h();
+ const sc_el=ph.querySelector('.scroll');if(sc_el)sc_el.scrollTop=0;
+ const car=ph.querySelector('#car');if(car){car.addEventListener('scroll',()=>{const i=Math.round(car.scrollLeft/294);ph.querySelectorAll('#dots i').forEach((d,j)=>d.classList.toggle('on',i===j));},{passive:true});}
+ document.getElementById('segA').setAttribute('aria-pressed',sc==='a');document.getElementById('segB').setAttribute('aria-pressed',sc==='b');
+ const order=ORDER[sc],idx=order.indexOf(cur);
+ document.getElementById('stepNo').textContent=`Сценарий ${sc.toUpperCase()} · шаг ${idx+1} из ${order.length}`;
+ document.getElementById('stepWho').textContent=s.who;
+ document.getElementById('stepTitle').textContent=s.t;
+ document.getElementById('stepNote').textContent=s.note;
+ document.getElementById('prevBtn').disabled=idx===0;
+ const nb=document.getElementById('nextBtn');
+ if(idx===order.length-1){nb.textContent=sc==='a'?'Перейти к сценарию B →':'Начать заново';nb.dataset.target=sc==='a'?'b1':'a1';}else{nb.textContent='Дальше →';nb.dataset.target=order[idx+1];}
+ document.getElementById('stepsTitle').textContent=sc==='a'?'Сценарий A · быстрый пилот':'Сценарий B · нативно';
+ const ol=document.getElementById('stepList');ol.innerHTML='';
+ order.forEach((id,i)=>{if(PHASES[sc][id]){const p=document.createElement('li');p.className='phase';p.textContent=PHASES[sc][id];ol.appendChild(p);}
+  const li=document.createElement('li');const b=document.createElement('button');b.type='button';
+  b.innerHTML=`<span class="n">${sc.toUpperCase()}${i+1}</span><span>${S[id].t}</span>`;if(id===cur)b.setAttribute('aria-current','step');
+  b.onclick=()=>go(id);li.appendChild(b);ol.appendChild(li);});}
+
+ph.addEventListener('click',e=>{
+ const amt=e.target.closest('[data-amt]');if(amt){amount=amounts[amt.dataset.amt];ph.querySelectorAll('[data-amt]').forEach(c=>c.classList.toggle('on',c===amt));const box=ph.querySelector('#amtBox');if(box)box.textContent=amount;return;}
+ const srt=e.target.closest('[data-sort]');if(srt){ph.querySelectorAll('[data-sort]').forEach(c=>c.classList.toggle('on',c===srt));return;}
+ const act=e.target.closest('[data-act]');
+ if(act){const a=act.dataset.act;
+  if(a==='tog'){act.classList.toggle('on');return;}
+  if(a==='upload'||a==='buh'){const st=ph.querySelector('#stState');if(st){st.textContent=a==='upload'?'2 файла загружены · проверяем':'Ссылка отправлена бухгалтеру';st.style.color='var(--a-ok)';}return;}
+  if(a==='pick'){act.textContent='Менеджер свяжется для оформления';act.className='btn s';return;}
+  if(a==='co-open'){const sh=ph.querySelector('#coSheet');sh.hidden=false;sh.innerHTML=`<div class="sheetbg" data-act="co-close"></div><div class="sheet" style="align-items:stretch"><span class="grab" style="align-self:center"></span><b style="font-size:20px">Для какой компании кредит?</b><div class="card list" style="background:var(--a-bg)">${companies.map((c,i)=>`<div class="li row" data-act="co-pick" data-i="${i}"><div class="grow"><div style="font-weight:500">${c[0]}</div><div class="t2">ИНН ${c[1]}</div></div>${c[1]===company[1]?`<span style="width:20px;height:20px;color:var(--a-ac)">${I.check}</span>`:''}</div>`).join('')}</div><span class="small">Показываем компании, привязанные к вашему аккаунту Эвотор.</span></div>`;return;}
+  if(a==='co-pick'){company=companies[+act.dataset.i];ph.querySelector('#coName').textContent=company[0];ph.querySelector('#coInn').textContent=company[1];ph.querySelector('#coSheet').hidden=true;return;}
+  if(a==='co-close'){ph.querySelector('#coSheet').hidden=true;return;}
+ }
+ if(e.target.closest('summary'))return;
+ const b=e.target.closest('[data-back]');if(b){const p=hist.pop();if(p)go(p,false);else{const o=ORDER[cur[0]];const i=o.indexOf(cur);if(i>0)go(o[i-1],false);}return;}
+ const g=e.target.closest('[data-go]');if(g&&g.dataset.go){go(g.dataset.go);}
+});
+document.getElementById('prevBtn').onclick=()=>{const o=ORDER[cur[0]];const i=o.indexOf(cur);if(i>0)go(o[i-1]);};
+document.getElementById('nextBtn').onclick=e=>{const t=e.currentTarget.dataset.target;if(t[0]!==cur[0])hist=[];go(t);};
+document.querySelectorAll('[data-scen]').forEach(b=>b.onclick=()=>{hist=[];go(b.dataset.scen+'1');});
+document.getElementById('hintBtn').onclick=e=>{const on=document.body.classList.toggle('hint');e.currentTarget.setAttribute('aria-pressed',on);};
+document.addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('input,textarea'))return;
+ if(e.key==='ArrowRight')document.getElementById('nextBtn').click();
+ if(e.key==='ArrowLeft'&&!document.getElementById('prevBtn').disabled)document.getElementById('prevBtn').click();});
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(S[h]&&h!==cur){hist=[];go(h,false);}});
+
+function fit(){const dev=document.getElementById('device'),wrap=document.getElementById('devwrap');
+ const narrow=window.innerWidth<=720;
+ const availH=narrow?Infinity:window.innerHeight-(document.querySelector('header.top').offsetHeight+48);
+ const availW=Math.min(window.innerWidth-32,narrow?window.innerWidth-32:9999);
+ const s=Math.max(.45,Math.min(1,availH/868,availW/414));
+ dev.style.transform=`scale(${s})`;wrap.style.width=(414*s)+'px';wrap.style.height=(868*s)+'px';}
+window.addEventListener('resize',fit);
+const h0=location.hash.slice(1);cur=S[h0]?h0:'a1';render();fit();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+})();
+</script>
+
+</body>
+</html>
